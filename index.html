@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edna Adan Hospital Handover</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React and Babel -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Lucide Icons via CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+        
+        body { 
+            margin: 0; 
+            background: #f0f4f8; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            padding: 20px; 
+        }
+
+        .app-container { 
+            width: 1400px; 
+            max-width: 100%; 
+            background: white; 
+            border-radius: 24px; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15); 
+            overflow: hidden; 
+        }
+
+        .login-overlay { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0,0,0,0.5); 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            z-index: 1000; 
+            backdrop-filter: blur(4px); 
+        }
+
+        .login-box { 
+            background: white; 
+            padding: 40px; 
+            border-radius: 32px; 
+            text-align: center; 
+            max-width: 400px; 
+            width: 90%; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2); 
+        }
+
+        .btn-editor { 
+            background: #0a9396; 
+            color: white; 
+            width: 200px; 
+            padding: 15px; 
+            margin: 10px; 
+            font-size: 18px; 
+            border: none; 
+            border-radius: 40px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            transition: 0.2s; 
+        }
+        
+        .btn-editor:hover { 
+            background: #08787a; 
+            transform: translateY(-2px); 
+        }
+        
+        .btn-viewer { 
+            background: #6c757d; 
+            color: white; 
+            width: 200px; 
+            padding: 15px; 
+            margin: 10px; 
+            font-size: 18px; 
+            border: none; 
+            border-radius: 40px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            transition: 0.2s; 
+        }
+        
+        .btn-viewer:hover { 
+            background: #5a6268; 
+            transform: translateY(-2px); 
+        }
+
+        .header { 
+            background: #0b3b4b; 
+            color: white; 
+            padding: 18px 28px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+
+        .role-badge { 
+            background: #0b3b4b; 
+            color: white; 
+            padding: 6px 20px; 
+            border-radius: 40px; 
+            display: inline-block; 
+            font-weight: 600; 
+            border: 2px solid white;
+        }
+
+        .switch-role { 
+            background: white; 
+            color: #0b3b4b; 
+            border: none; 
+            padding: 8px 20px; 
+            border-radius: 40px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            transition: 0.2s; 
+        }
+
+        .switch-role:hover { 
+            background: #e9ecef; 
+            transform: translateY(-2px); 
+        }
+
+        .main-tabs { 
+            display: flex; 
+            background: #1d6f7a; 
+        }
+
+        .tab-btn { 
+            flex: 1; 
+            padding: 14px; 
+            border: none; 
+            background: none; 
+            color: white; 
+            font-weight: 600; 
+            cursor: pointer; 
+            font-size: 16px; 
+            border-right: 1px solid #7fb7be; 
+            transition: 0.2s; 
+        }
+
+        .tab-btn:last-child { 
+            border-right: none; 
+        }
+
+        .tab-btn.active { 
+            background: #0b3b4b; 
+        }
+
+        .tab-btn:hover:not(.active) { 
+            background: #15656e; 
+        }
+
+        .step-indicator { 
+            display: flex; 
+            background: #e9ecef; 
+            border-radius: 60px; 
+            margin-bottom: 30px; 
+            overflow: hidden; 
+        }
+
+        .step { 
+            flex: 1; 
+            padding: 14px; 
+            text-align: center; 
+            font-weight: 600; 
+            color: #495057; 
+            background: #e9ecef; 
+        }
+
+        .step.active { 
+            background: #0a9396; 
+            color: white; 
+        }
+
+        .form-section { 
+            background: #f8f9fa; 
+            padding: 25px; 
+            border-radius: 24px; 
+            margin-bottom: 25px; 
+            border: 1px solid #dee2e6; 
+        }
+
+        .hospital-label { 
+            font-weight: 600; 
+            display: block; 
+            margin-bottom: 8px; 
+            color: #1d6f7a; 
+        }
+
+        .hospital-input { 
+            width: 100%; 
+            padding: 12px; 
+            border: 1px solid #ced4da; 
+            border-radius: 16px; 
+            font-size: 15px; 
+            transition: 0.2s; 
+        }
+
+        .hospital-input:focus { 
+            border-color: #0a9396; 
+            outline: none; 
+            box-shadow: 0 0 0 3px rgba(10,147,150,0.2); 
+        }
+
+        .hospital-btn { 
+            background: #0a9396; 
+            color: white; 
+            border: none; 
+            padding: 14px 30px; 
+            border-radius: 40px; 
+            cursor: pointer; 
+            font-size: 16px; 
+            font-weight: 600; 
+            margin-right: 12px; 
+            transition: 0.2s; 
+            display: inline-block;
+            text-align: center;
+        }
+
+        .hospital-btn:hover { 
+            background: #08787a; 
+            transform: translateY(-2px); 
+        }
+
+        .hospital-btn-secondary { 
+            background: #6c757d; 
+        }
+
+        .hospital-btn-secondary:hover { 
+            background: #5a6268; 
+        }
+
+        .shift-card { 
+            background: white; 
+            border-radius: 24px; 
+            margin-bottom: 30px; 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05); 
+            border: 1px solid #dee2e6; 
+            overflow: hidden; 
+        }
+
+        .shift-header { 
+            background: #e2f0f2; 
+            padding: 18px 24px; 
+            font-size: 1.3rem; 
+            font-weight: 600; 
+            color: #0b3b4b; 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 30px; 
+            border-bottom: 2px solid #b0d4da; 
+        }
+
+        .shift-header span { 
+            background: white; 
+            padding: 5px 18px; 
+            border-radius: 40px; 
+            font-size: 1rem; 
+            color: #0b3b4b; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
+        }
+
+        .shift-totals { 
+            background: #f8f9fa; 
+            padding: 12px 24px; 
+            font-weight: 500; 
+            border-bottom: 1px solid #dee2e6; 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 20px; 
+        }
+
+        .team-grid { 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 16px; 
+            margin: 8px 0 12px 0; 
+            padding: 0 24px; 
+        }
+
+        .team-member { 
+            background: #e9ecef; 
+            border-radius: 30px; 
+            padding: 4px 16px; 
+            font-size: 0.95rem; 
+        }
+
+        .admissions-row { 
+            background: #d0e6e8; 
+            padding: 8px 24px; 
+            font-weight: 500; 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 30px; 
+            border-top: 1px solid #b0d4da; 
+        }
+
+        .patient-block { 
+            padding: 20px 24px; 
+            border-bottom: 1px solid #dee2e6; 
+        }
+
+        .patient-block:last-child { 
+            border-bottom: none; 
+        }
+
+        .patient-title { 
+            font-size: 1.2rem; 
+            font-weight: 600; 
+            color: #0a9396; 
+            margin-bottom: 10px; 
+        }
+
+        .patient-title span { 
+            background: #e2f0f2; 
+            padding: 4px 12px; 
+            border-radius: 30px; 
+            font-size: 0.9rem; 
+            margin-left: 15px; 
+        }
+
+        .history-section { 
+            background: #fafafa; 
+            padding: 15px; 
+            border-radius: 16px; 
+            margin: 10px 0; 
+            white-space: pre-wrap; 
+            font-family: 'Courier New', monospace; 
+            font-size: 0.95rem; 
+            max-height: 300px; 
+            overflow-y: auto; 
+        }
+
+        .info-line { 
+            margin: 8px 0; 
+            font-weight: 500; 
+        }
+
+        .info-line strong { 
+            color: #1d6f7a; 
+            width: 120px; 
+            display: inline-block; 
+        }
+
+        .delete-btn {
+            color: #b23b3b;
+            padding: 8px;
+            border-radius: 50%;
+            transition: 0.2s;
+        }
+        
+        .delete-btn:hover {
+            background: #fee2e2;
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 640px) {
+            .header h1 {
+                font-size: 1.2rem;
+            }
+            .step {
+                padding: 10px 5px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        const INITIAL_SHIFT = {
+            date: new Date().toISOString().split('T')[0],
+            time: new Date().toTimeString().slice(0, 5),
+            shiftLetter: 'A',
+            seniorResident: '',
+            juniorResident: '',
+            gp: '',
+            intern: '',
+            vdTotal: 0,
+            csTotal: 0,
+            maternityAdmissions: 0,
+            medicalAdmissions: 0,
+            nicuAdmissions: 0,
+            patients: []
+        };
+
+        const INITIAL_PATIENT = {
+            name: '',
+            age: '',
+            history: '',
+            ultrasound: '',
+            investigations: '',
+            diagnosis: '',
+            plan: ''
+        };
+
+        function App() {
+            const [role, setRole] = useState(null);
+            const [activeTab, setActiveTab] = useState('create');
+            const [step, setStep] = useState(1);
+            const [currentShift, setCurrentShift] = useState(INITIAL_SHIFT);
+            const [currentPatient, setCurrentPatient] = useState(INITIAL_PATIENT);
+            const [shifts, setShifts] = useState([]);
+            const [loading, setLoading] = useState(false);
+            const [saving, setSaving] = useState(false);
+            const [googleScriptUrl, setGoogleScriptUrl] = useState('');
+
+            // Load saved data on mount
+            useEffect(() => {
+                const savedShifts = localStorage.getItem('hospital_shifts');
+                if (savedShifts) {
+                    try {
+                        setShifts(JSON.parse(savedShifts));
+                    } catch (e) {
+                        console.error('Failed to parse saved shifts', e);
+                    }
+                }
+                
+                const savedUrl = localStorage.getItem('google_script_url');
+                if (savedUrl) {
+                    setGoogleScriptUrl(savedUrl);
+                }
+            }, []);
+
+            const saveToLocalStorage = (newShifts) => {
+                localStorage.setItem('hospital_shifts', JSON.stringify(newShifts));
+                setShifts(newShifts);
+            };
+
+            const saveSettings = () => {
+                localStorage.setItem('google_script_url', googleScriptUrl);
+                alert('✅ Settings saved! Your Google Sheets URL has been stored.');
+            };
+
+            const handleSavePatient = () => {
+                if (!currentPatient.name) {
+                    alert('Please enter patient name');
+                    return;
+                }
+                setCurrentShift(prev => ({
+                    ...prev,
+                    patients: [...prev.patients, currentPatient]
+                }));
+                setCurrentPatient(INITIAL_PATIENT);
+            };
+
+            const handleRemovePatient = (index) => {
+                setCurrentShift(prev => ({
+                    ...prev,
+                    patients: prev.patients.filter((_, i) => i !== index)
+                }));
+            };
+
+            const handleFinishAndSave = async () => {
+                setSaving(true);
+                
+                // Create new shift with ID and timestamp
+                const newShift = { 
+                    ...currentShift, 
+                    id: Date.now(), 
+                    created_at: new Date().toISOString() 
+                };
+                
+                // Save to localStorage
+                const updatedShifts = [newShift, ...shifts];
+                saveToLocalStorage(updatedShifts);
+
+                // Try to save to Google Sheets if URL is configured
+                if (googleScriptUrl) {
+                    try {
+                        const response = await fetch(googleScriptUrl, {
+                            method: 'POST',
+                            mode: 'no-cors', // This means we can't read response but data is sent
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(newShift)
+                        });
+                        console.log('Data sent to Google Sheets');
+                        alert('✅ Report saved locally and sent to Google Sheets!');
+                    } catch (error) {
+                        console.error('Error sending to Google Sheets:', error);
+                        alert('⚠️ Report saved locally, but failed to sync with Google Sheets. Check your URL in Settings.');
+                    }
+                } else {
+                    alert('✅ Report saved locally! (Connect Google Sheets in Settings to enable cloud backup)');
+                }
+                
+                setSaving(false);
+                setCurrentShift(INITIAL_SHIFT);
+                setStep(1);
+                setActiveTab('view');
+            };
+
+            const deleteShift = (id) => {
+                if (confirm('Are you sure you want to delete this report? This cannot be undone.')) {
+                    const updatedShifts = shifts.filter(s => s.id !== id);
+                    saveToLocalStorage(updatedShifts);
+                }
+            };
+
+            const clearAllData = () => {
+                if (confirm('⚠️ WARNING: This will delete ALL saved reports permanently. Are you absolutely sure?')) {
+                    localStorage.removeItem('hospital_shifts');
+                    setShifts([]);
+                    alert('All data cleared.');
+                }
+            };
+
+            // Role selection screen
+            if (!role) {
+                return (
+                    <div className="login-overlay">
+                        <div className="login-box">
+                            <h2 className="text-2xl font-bold mb-6 text-[#0b3b4b]">🏥 Edna Adan Hospital</h2>
+                            <p className="text-gray-600 mb-8">Select your role to continue</p>
+                            <div className="flex flex-col gap-4 items-center">
+                                <button 
+                                    onClick={() => setRole('editor')}
+                                    className="btn-editor"
+                                >
+                                    📝 Editor
+                                </button>
+                                <button 
+                                    onClick={() => {
+                                        setRole('viewer');
+                                        setActiveTab('view');
+                                    }}
+                                    className="btn-viewer"
+                                >
+                                    👁️ Viewer
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="app-container">
+                    {/* Header */}
+                    <header className="header">
+                        <h1 className="text-xl md:text-2xl font-bold">🏥 Edna Adan Hospital Handover</h1>
+                        <div className="flex items-center gap-4">
+                            <span className="role-badge hidden sm:block">
+                                {role === 'editor' ? '✏️ EDITOR' : '👁️ VIEWER'}
+                            </span>
+                            <button 
+                                onClick={() => setRole(null)}
+                                className="switch-role text-sm"
+                            >
+                                Switch Role
+                            </button>
+                        </div>
+                    </header>
+
+                    {/* Navigation Tabs */}
+                    <div className="main-tabs">
+                        {role === 'editor' && (
+                            <button
+                                onClick={() => setActiveTab('create')}
+                                className={`tab-btn ${activeTab === 'create' ? 'active' : ''}`}
+                            >
+                                ✏️ Create Report
+                            </button>
+                        )}
+                        <button
+                            onClick={() => setActiveTab('view')}
+                            className={`tab-btn ${activeTab === 'view' ? 'active' : ''}`}
+                        >
+                            📋 View Reports
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('settings')}
+                            className={`tab-btn ${activeTab === 'settings' ? 'active' : ''}`}
+                        >
+                            ⚙️ Settings
+                        </button>
+                    </div>
+
+                    <main className="p-4 md:p-8">
+                        {/* Settings Tab */}
+                        {activeTab === 'settings' && (
+                            <div className="form-section">
+                                <h3 className="text-xl font-bold text-[#0b3b4b] mb-6">⚙️ Google Sheets Connection</h3>
+                                
+                                <div className="bg-blue-50 border border-blue-200 rounded-2xl p-6 mb-8">
+                                    <h4 className="font-bold text-blue-800 mb-2">📤 How to connect to Google Sheets:</h4>
+                                    <ol className="list-decimal ml-6 text-gray-700 space-y-2">
+                                        <li>Create a Google Apps Script Web App</li>
+                                        <li>Deploy it as a web app with "Anyone" access</li>
+                                        <li>Copy the URL and paste it below</li>
+                                    </ol>
+                                </div>
+
+                                <div className="mb-6">
+                                    <label className="hospital-label">Google Apps Script URL</label>
+                                    <input 
+                                        type="url" 
+                                        className="hospital-input" 
+                                        placeholder="https://script.google.com/macros/s/.../exec" 
+                                        value={googleScriptUrl} 
+                                        onChange={e => setGoogleScriptUrl(e.target.value)} 
+                                    />
+                                    <p className="text-sm text-gray-500 mt-2">
+                                        Your data will be saved locally even without this URL.
+                                    </p>
+                                </div>
+
+                                <div className="flex gap-4">
+                                    <button onClick={saveSettings} className="hospital-btn">
+                                        💾 Save URL
+                                    </button>
+                                    <button onClick={clearAllData} className="hospital-btn hospital-btn-secondary bg-red-600 hover:bg-red-700">
+                                        🗑️ Clear All Data
+                                    </button>
+                                </div>
+
+                                <div className="mt-8 p-4 bg-gray-100 rounded-2xl">
+                                    <p className="text-sm text-gray-600">
+                                        <strong>📊 Data Status:</strong> {shifts.length} reports saved locally
+                                        {googleScriptUrl && ' • Google Sheets URL configured'}
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Create Report Tab */}
+                        {activeTab === 'create' && role === 'editor' && (
+                            <div>
+                                {/* Step Indicator */}
+                                <div className="step-indicator">
+                                    <div className={`step ${step === 1 ? 'active' : ''}`}>1. Shift Info</div>
+                                    <div className={`step ${step === 2 ? 'active' : ''}`}>2. Patient Details</div>
+                                    <div className={`step ${step === 3 ? 'active' : ''}`}>3. Preview & Finish</div>
+                                </div>
+
+                                {/* Step 1: Shift Info */}
+                                {step === 1 && (
+                                    <div className="form-section">
+                                        <h3 className="text-xl font-bold text-[#0b3b4b] mb-6">📋 Shift Details</h3>
+                                        
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                            <div>
+                                                <label className="hospital-label">Date</label>
+                                                <input 
+                                                    type="date" 
+                                                    className="hospital-input"
+                                                    value={currentShift.date}
+                                                    onChange={e => setCurrentShift({...currentShift, date: e.target.value})}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="hospital-label">Time</label>
+                                                <input 
+                                                    type="time" 
+                                                    className="hospital-input"
+                                                    value={currentShift.time}
+                                                    onChange={e => setCurrentShift({...currentShift, time: e.target.value})}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="mb-6">
+                                            <label className="hospital-label">Shift Letter</label>
+                                            <select 
+                                                className="hospital-input"
+                                                value={currentShift.shiftLetter}
+                                                onChange={e => setCurrentShift({...currentShift, shiftLetter: e.target.value})}
+                                            >
+                                                {['A', 'B', 'C', 'D'].map(l => (
+                                                    <option key={l} value={l}>Shift {l}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+
+                                        <h4 className="font-bold text-[#1d6f7a] mb-4">👥 Duty Team</h4>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                            <div>
+                                                <label className="hospital-label">Senior Resident</label>
+                                                <input 
+                                                    className="hospital-input" 
+                                                    value={currentShift.seniorResident} 
+                                                    onChange={e => setCurrentShift({...currentShift, seniorResident: e.target.value})} 
+                                                    placeholder="Dr. Name"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="hospital-label">Junior Resident</label>
+                                                <input 
+                                                    className="hospital-input" 
+                                                    value={currentShift.juniorResident} 
+                                                    onChange={e => setCurrentShift({...currentShift, juniorResident: e.target.value})} 
+                                                    placeholder="Dr. Name"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="hospital-label">GP</label>
+                                                <input 
+                                                    className="hospital-input" 
+                                                    value={currentShift.gp} 
+                                                    onChange={e => setCurrentShift({...currentShift, gp: e.target.value})} 
+                                                    placeholder="Dr. Name"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="hospital-label">Intern</label>
+                                                <input 
+                                                    className="hospital-input" 
+                                                    value={currentShift.intern} 
+                                                    onChange={e => setCurrentShift({...currentShift, intern: e.target.value})} 
+                                                    placeholder="Dr. Name"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <h4 className="font-bold text-[#1d6f7a] mb-4">📊 Delivery Totals</h4>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                            <div>
+                                                <label className="hospital-label">Total Vaginal Deliveries (VD)</label>
+                                                <input 
+                                                    type="number" 
+                                                    className="hospital-input" 
+                                                    value={currentShift.vdTotal} 
+                                                    onChange={e => setCurrentShift({...currentShift, vdTotal: parseInt(e.target.value) || 0})} 
+                                                    min="0"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="hospital-label">Total C-Sections (CS)</label>
+                                                <input 
+                                                    type="number" 
+                                                    className="hospital-input" 
+                                                    value={currentShift.csTotal} 
+                                                    onChange={e => setCurrentShift({...currentShift, csTotal: parseInt(e.target.value) || 0})} 
+                                                    min="0"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <h4 className="font-bold text-[#1d6f7a] mb-4">🏥 Admissions</h4>
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                                            <div>
+                                                <label className="hospital-label">Maternity</label>
+                                                <input 
+                                                    type="number" 
+                                                    className="hospital-input" 
+                                                    value={currentShift.maternityAdmissions} 
+                                                    onChange={e => setCurrentShift({...currentShift, maternityAdmissions: parseInt(e.target.value) || 0})} 
+                                                    min="0"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="hospital-label">Medical</label>
+                                                <input 
+                                                    type="number" 
+                                                    className="hospital-input" 
+                                                    value={currentShift.medicalAdmissions} 
+                                                    onChange={e => setCurrentShift({...currentShift, medicalAdmissions: parseInt(e.target.value) || 0})} 
+                                                    min="0"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="hospital-label">NICU</label>
+                                                <input 
+                                                    type="number" 
+                                                    className="hospital-input" 
+                                                    value={currentShift.nicuAdmissions} 
+                                                    onChange={e => setCurrentShift({...currentShift, nicuAdmissions: parseInt(e.target.value) || 0})} 
+                                                    min="0"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="flex justify-start pt-4">
+                                            <button 
+                                                onClick={() => setStep(2)}
+                                                className="hospital-btn"
+                                            >
+                                                Next: Patient Details ➡️
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Step 2: Patient Details */}
+                                {step === 2 && (
+                                    <div className="form-section">
+                                        <h3 className="text-xl font-bold text-[#0b3b4b] mb-6">📝 Patient Details</h3>
+                                        
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                            <div>
+                                                <label className="hospital-label">Patient Name *</label>
+                                                <input 
+                                                    className="hospital-input" 
+                                                    value={currentPatient.name} 
+                                                    onChange={e => setCurrentPatient({...currentPatient, name: e.target.value})} 
+                                                    placeholder="Full name"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="hospital-label">Age</label>
+                                                <input 
+                                                    className="hospital-input" 
+                                                    value={currentPatient.age} 
+                                                    onChange={e => setCurrentPatient({...currentPatient, age: e.target.value})} 
+                                                    placeholder="e.g., 32 years"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="mb-6">
+                                            <label className="hospital-label">History</label>
+                                            <textarea 
+                                                rows={3} 
+                                                className="hospital-input" 
+                                                value={currentPatient.history} 
+                                                onChange={e => setCurrentPatient({...currentPatient, history: e.target.value})} 
+                                                placeholder="Relevant medical history"
+                                            />
+                                        </div>
+
+                                        <div className="mb-6">
+                                            <label className="hospital-label">Ultrasound Findings</label>
+                                            <textarea 
+                                                rows={2} 
+                                                className="hospital-input" 
+                                                value={currentPatient.ultrasound} 
+                                                onChange={e => setCurrentPatient({...currentPatient, ultrasound: e.target.value})} 
+                                                placeholder="USG findings"
+                                            />
+                                        </div>
+
+                                        <div className="mb-6">
+                                            <label className="hospital-label">Investigations</label>
+                                            <textarea 
+                                                rows={2} 
+                                                className="hospital-input" 
+                                                value={currentPatient.investigations} 
+                                                onChange={e => setCurrentPatient({...currentPatient, investigations: e.target.value})} 
+                                                placeholder="Lab results, tests"
+                                            />
+                                        </div>
+
+                                        <div className="mb-6">
+                                            <label className="hospital-label">Diagnosis</label>
+                                            <input 
+                                                className="hospital-input" 
+                                                value={currentPatient.diagnosis} 
+                                                onChange={e => setCurrentPatient({...currentPatient, diagnosis: e.target.value})} 
+                                                placeholder="Primary diagnosis"
+                                            />
+                                        </div>
+
+                                        <div className="mb-6">
+                                            <label className="hospital-label">Plan</label>
+                                            <textarea 
+                                                rows={3} 
+                                                className="hospital-input" 
+                                                value={currentPatient.plan} 
+                                                onChange={e => setCurrentPatient({...currentPatient, plan: e.target.value})} 
+                                                placeholder="Treatment plan"
+                                            />
+                                        </div>
+                                        
+                                        <div className="flex flex-wrap gap-4 mb-8">
+                                            <button onClick={() => setStep(1)} className="hospital-btn hospital-btn-secondary">
+                                                ⬅️ Previous
+                                            </button>
+                                            <button 
+                                                onClick={handleSavePatient}
+                                                disabled={!currentPatient.name}
+                                                className={`hospital-btn ${!currentPatient.name ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                            >
+                                                💾 Save Patient
+                                            </button>
+                                            <button onClick={() => setStep(3)} className="hospital-btn">
+                                                Preview Shift ⏩
+                                            </button>
+                                        </div>
+
+                                        {/* Patient List */}
+                                        <div className="mt-8 pt-6 border-t border-gray-200">
+                                            <h3 className="text-lg font-bold text-[#0b3b4b] mb-4">
+                                                Patients in this Shift ({currentShift.patients.length})
+                                            </h3>
+                                            
+                                            {currentShift.patients.length === 0 ? (
+                                                <div className="text-center py-10 border-2 border-dashed border-gray-200 rounded-2xl text-gray-400">
+                                                    No patients added yet
+                                                </div>
+                                            ) : (
+                                                <div className="space-y-3">
+                                                    {currentShift.patients.map((p, i) => (
+                                                        <div key={i} className="flex items-center justify-between bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                                                            <div>
+                                                                <div className="font-bold text-[#0a9396]">{p.name}</div>
+                                                                <div className="text-sm text-gray-600">{p.diagnosis || 'No diagnosis'}</div>
+                                                            </div>
+                                                            <button 
+                                                                onClick={() => handleRemovePatient(i)} 
+                                                                className="delete-btn"
+                                                            >
+                                                                🗑️
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Step 3: Preview */}
+                                {step === 3 && (
+                                    <div className="form-section">
+                                        <h3 className="text-xl font-bold text-[#0b3b4b] mb-6">🔍 Review & Finish</h3>
+                                        
+                                        <div className="shift-card">
+                                            <div className="shift-header">
+                                                <span>Shift {currentShift.shiftLetter}</span>
+                                                <span>{currentShift.date} {currentShift.time}</span>
+                                            </div>
+                                            
+                                            <div className="team-grid">
+                                                <span className="team-member">Sr: {currentShift.seniorResident || '—'}</span>
+                                                <span className="team-member">Jr: {currentShift.juniorResident || '—'}</span>
+                                                <span className="team-member">GP: {currentShift.gp || '—'}</span>
+                                                <span className="team-member">Intern: {currentShift.intern || '—'}</span>
+                                            </div>
+                                            
+                                            <div className="shift-totals">
+                                                <span>💉 VD: {currentShift.vdTotal}</span>
+                                                <span>🔪 CS: {currentShift.csTotal}</span>
+                                            </div>
+                                            
+                                            <div className="admissions-row">
+                                                <span>🏥 Mat: {currentShift.maternityAdmissions}</span>
+                                                <span>🏥 Med: {currentShift.medicalAdmissions}</span>
+                                                <span>🏥 NICU: {currentShift.nicuAdmissions}</span>
+                                            </div>
+                                            
+                                            {currentShift.patients.length === 0 ? (
+                                                <p className="p-6 text-gray-400 italic">No patients recorded for this shift.</p>
+                                            ) : (
+                                                currentShift.patients.map((p, i) => (
+                                                    <div key={i} className="patient-block">
+                                                        <div className="patient-title">
+                                                            Patient {i + 1}: {p.name} <span>{p.age}</span>
+                                                        </div>
+                                                        <div className="info-line"><strong>Diagnosis:</strong> {p.diagnosis || '—'}</div>
+                                                        {p.history && <div className="info-line"><strong>History:</strong> {p.history}</div>}
+                                                        {p.ultrasound && <div className="info-line"><strong>Ultrasound:</strong> {p.ultrasound}</div>}
+                                                        {p.investigations && <div className="info-line"><strong>Investigations:</strong> {p.investigations}</div>}
+                                                        {p.plan && <div className="history-section"><strong>Plan:</strong> {p.plan}</div>}
+                                                    </div>
+                                                ))
+                                            )}
+                                        </div>
+
+                                        <div className="flex flex-wrap gap-4 pt-6">
+                                            <button onClick={() => setStep(2)} className="hospital-btn hospital-btn-secondary">
+                                                ⬅️ Previous
+                                            </button>
+                                            <button 
+                                                onClick={handleFinishAndSave}
+                                                disabled={saving}
+                                                className="hospital-btn"
+                                            >
+                                                {saving ? 'Saving...' : '✅ Finish & Save Report'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* View Reports Tab */}
+                        {activeTab === 'view' && (
+                            <div>
+                                <div className="flex justify-between items-center mb-8">
+                                    <h3 className="text-2xl font-bold text-[#0b3b4b]">📋 All Shift Reports</h3>
+                                    <button 
+                                        onClick={() => {
+                                            const saved = localStorage.getItem('hospital_shifts');
+                                            if (saved) setShifts(JSON.parse(saved));
+                                        }}
+                                        className="hospital-btn hospital-btn-secondary"
+                                    >
+                                        🔄 Refresh
+                                    </button>
+                                </div>
+                                
+                                {shifts.length === 0 ? (
+                                    <div className="text-center py-20 bg-gray-50 rounded-2xl border border-gray-200">
+                                        <div className="text-6xl mb-4">📭</div>
+                                        <h3 className="text-xl font-bold text-gray-800">No reports found</h3>
+                                        <p className="text-gray-500">Previous shift reports will appear here.</p>
+                                        {role === 'editor' && (
+                                            <button 
+                                                onClick={() => setActiveTab('create')}
+                                                className="hospital-btn mt-6"
+                                            >
+                                                ✏️ Create First Report
+                                            </button>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <div className="space-y-8">
+                                        {shifts.map((s) => (
+                                            <div key={s.id} className="shift-card">
+                                                <div className="shift-header">
+                                                    <span>Shift {s.shiftLetter}</span>
+                                                    <span>{s.date} {s.time}</span>
+                                                    {role === 'editor' && (
+                                                        <button 
+                                                            onClick={() => deleteShift(s.id)}
+                                                            className="ml-auto text-red-600 hover:text-red-800 font-normal text-sm"
+                                                        >
+                                                            🗑️ Delete
+                                                        </button>
+                                                    )}
+                                                </div>
+                                                
+                                                <div className="team-grid">
+                                                    <span className="team-member">Sr: {s.seniorResident || '—'}</span>
+                                                    <span className="team-member">Jr: {s.juniorResident || '—'}</span>
+                                                    <span className="team-member">GP: {s.gp || '—'}</span>
+                                                    <span className="team-member">Intern: {s.intern || '—'}</span>
+                                                </div>
+                                                
+                                                <div className="shift-totals">
+                                                    <span>💉 VD: {s.vdTotal}</span>
+                                                    <span>🔪 CS: {s.csTotal}</span>
+                                                </div>
+                                                
+                                                <div className="admissions-row">
+                                                    <span>🏥 Mat: {s.maternityAdmissions}</span>
+                                                    <span>🏥 Med: {s.medicalAdmissions}</span>
+                                                    <span>🏥 NICU: {s.nicuAdmissions}</span>
+                                                </div>
+                                                
+                                                {s.patients.length === 0 ? (
+                                                    <p className="p-6 text-gray-400 italic">No patients recorded for this shift.</p>
+                                                ) : (
+                                                    s.patients.map((p, pi) => (
+                                                        <div key={pi} className="patient-block">
+                                                            <div className="patient-title">
+                                                                Patient {pi + 1}: {p.name} <span>{p.age}</span>
+                                                            </div>
+                                                            <div className="info-line"><strong>Diagnosis:</strong> {p.diagnosis || '—'}</div>
+                                                            {p.history && <div className="info-line"><strong>History:</strong> {p.history}</div>}
+                                                            {p.ultrasound && <div className="info-line"><strong>Ultrasound:</strong> {p.ultrasound}</div>}
+                                                            {p.investigations && <div className="info-line"><strong>Investigations:</strong> {p.investigations}</div>}
+                                                            {p.plan && <div className="history-section"><strong>Plan:</strong> {p.plan}</div>}
+                                                        </div>
+                                                    ))
+                                                )}
+                                                
+                                                {s.created_at && (
+                                                    <div className="px-6 py-3 bg-gray-50 text-xs text-gray-500 border-t border-gray-200">
+                                                        Saved: {new Date(s.created_at).toLocaleString()}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </main>
+                </div>
+            );
+        }
+
+        // Render the app
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
